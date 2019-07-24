@@ -63,12 +63,20 @@
 
 #define LIBSSH2_RSA 1
 #define LIBSSH2_DSA 1
+#define LIBSSH2_ECDSA 0
+#define LIBSSH2_ED25519 0
 
 #define MD5_DIGEST_LENGTH 16
 #define SHA_DIGEST_LENGTH 20
 #define SHA256_DIGEST_LENGTH 32
 #define SHA512_DIGEST_LENGTH 64
 
+#define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
+
+#if LIBSSH2_ECDSA
+#else
+#define _libssh2_ec_key void
+#endif
 
 /*******************************************************************/
 /*
@@ -302,7 +310,8 @@ struct _libssh2_wincng_cipher_ctx {
 struct _libssh2_wincng_cipher_type {
     BCRYPT_ALG_HANDLE *phAlg;
     unsigned long dwKeyLength;
-    int useIV;      /* TODO: Convert to bool when a C89 compatible bool type is defined */
+    int useIV;      /* TODO: Convert to bool when a C89 compatible bool type
+                       is defined */
     int ctrMode;
 };
 
@@ -391,7 +400,6 @@ _libssh2_bn *_libssh2_wincng_bignum_init(void);
 void _libssh2_wincng_init(void);
 void _libssh2_wincng_free(void);
 int _libssh2_wincng_random(void *buf, int len);
-void _libssh2_init_aes_ctr(void);
 
 int
 _libssh2_wincng_hash_init(_libssh2_wincng_hash_ctx *ctx,
